@@ -73,8 +73,11 @@ dependencies {
     //Implementa las librerias de Kotlinx para parcelizar (o utilizar JSON)
     implementation(libs.kotlinx.serialization.json)
 
-    //    // Implementa las librerias de Navigation Compose
+    // Implementa las librerias de Navigation Compose
     implementation(libs.androidx.navigation.compose.android)
+
+    // Implementacion de Iconos
+    implementation("androidx.compose.material:material-icons-extended-android:1.7.8")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
