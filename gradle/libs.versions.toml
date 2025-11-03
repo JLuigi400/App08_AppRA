@@ -29,6 +29,7 @@ navigationComposeAndroid = "2.9.5"
 # Version para serilziar JSON
 kolinxSerialization = "1.6.3"
 kotlinParcelize = "1.8.10"
+foundationLayoutAndroid = "1.7.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -62,6 +63,7 @@ androidx-navigation-compose-android = { group = "androidx.navigation", name = "n
 
 # Libreria para utilizar el serialization o parcelizar de Kotlin Class a JSON
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref  = "kolinxSerialization" }
+androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
