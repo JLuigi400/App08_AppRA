@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @SuppressLint("MissingPermision")
+    @SuppressLint("MissingPermission")
     fun obtener_ubicacion_usuario (
         ubicacion_actualizada: (Pair<Double, Double>) -> Unit,
         fallo_obtener_ubicacion: (Exception) -> Unit,
