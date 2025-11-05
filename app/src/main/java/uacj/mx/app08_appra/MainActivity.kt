@@ -2,7 +2,9 @@ package uacj.mx.app08_appra
 
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.Manifest
 import android.os.Bundle
+import android.util.Log
 import android.util.Pair
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -43,14 +45,28 @@ class MainActivity : ComponentActivity() {
 
                     SolicitudPermisos(
                         con_permisos_obtenidos = {
-                            mostrar_resultado_permisos true
-                            getUserLocation()
+                            mostrar_resultado_permisos = true
+                            obtener_ubicacion_usuario(
+                                ubicacion_actualizada = { ubicacion ->
+                                    Log.v("UBICACIÓN","${ubicacion.first}")
+                                    Log.v("UBICACIÓN","${ubicacion.second}")
+                                    texto_ubicacion = "Latitud: ${ubicacion.first} Longitud: ${ubicacion.second}"
+                                },
+                                fallo_obtener_ubicacion = { error_encontrado ->
+                                    texto_ubicacion = "Error ${error_encontrado.localizedMessage}"
+                                },
+                                ubicacion_actualizada_no_disponible = {
+                                    texto_ubicacion = "Error: La ubicación no está disponible por ningún motivo"
+                                }
+                            )
                         },
                         sin_permisos_obtenidos = {
-                            mostrar_resultado_permisos true
+                            mostrar_resultado_permisos = true
                             texto_permisos_obtenidos = "No tengo todos los permisos para funcionar qnq"
                         },
                     ) { }
+
+                    Text(texto_ubicacion)
                 }
             }
         }

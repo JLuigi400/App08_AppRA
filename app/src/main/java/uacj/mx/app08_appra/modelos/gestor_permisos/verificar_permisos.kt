@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.util.fastFilter
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
@@ -50,12 +51,18 @@ fun SolicitudPermisos(
     LaunchedEffect(key1 = estado_permisos) {
         val tengo_permisos_revocados = estado_permisos.revokedPermissions.size == estado_permisos.permissions.size
 
+        /*
         var lista_permisos_por_pedir: List<PermissionState> = emptyList<PermissionState>()
 
         for(permiso in estado_permisos.permissions){
             if(!permiso.status.isGranted){
                 lista_permisos_por_pedir.add(permiso)
             }
+        }
+        */
+
+        val lista_permisos_por_pedir = estado_permisos.permissions.fastFilter {
+            permiso -> !permiso.status.isGranted
         }
 
         if(!lista_permisos_por_pedir.isEmpty()){
