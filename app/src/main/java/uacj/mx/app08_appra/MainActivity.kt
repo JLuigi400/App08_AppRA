@@ -3,6 +3,7 @@ package uacj.mx.app08_appra
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.Manifest
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.util.Pair
@@ -43,6 +44,7 @@ class MainActivity : ComponentActivity() {
                     var texto_ubicacion by remember { mutableStateOf("No tengo permisos para ver tu ubicación qnq") }
                     var mostrar_resultado_permisos by remember { mutableStateOf(false) }
                     var texto_permisos_obtenidos by remember { mutableStateOf("Todos los permisos obtenidos") }
+                    var ultima_ubicacion_conocida by remember { mutableStateOf<Location?>(null) }
 
                     SolicitudPermisos(
                         con_permisos_obtenidos = {
@@ -51,7 +53,12 @@ class MainActivity : ComponentActivity() {
                                 ubicacion_actualizada = { ubicacion ->
                                     Log.v("UBICACIÓN","${ubicacion.first}")
                                     Log.v("UBICACIÓN","${ubicacion.second}")
-                                    texto_ubicacion = "Latitud: ${ubicacion.first} Longitud: ${ubicacion.second}"
+
+                                    val ubicacion_actual = Location("SistemaDeUbicacion")
+                                    ubicacion_actual.latitude = ubicacion.first
+                                    ubicacion_actual.longitude = ubicacion.second
+
+                                    ultima_ubicacion_conocida = ubicacion_actual
                                 },
                                 fallo_obtener_ubicacion = { error_encontrado ->
                                     texto_ubicacion = "Error ${error_encontrado.localizedMessage}"
@@ -67,7 +74,13 @@ class MainActivity : ComponentActivity() {
                         },
                     ) { }
 
-                        Text(texto_ubicacion, Modifier.padding(innerPadding))
+                    
+                    Principal(
+                        modificador = Modifier.padding(innerPadding),
+                        ubicacion = ultima_ubicacion_conocida
+                    )
+                    
+                    Text(texto_ubicacion, Modifier.padding(innerPadding))
 
                 }
             }
@@ -107,6 +120,7 @@ class MainActivity : ComponentActivity() {
 
         if(tenemos_permisos_ubicacion()){
             conexion_para_obtener_ubicacion.getCurrentLocation(
+
                 precision, CancellationTokenSource().token
             ).addOnSuccessListener {
                 ubicacion -> if(ubicacion != null){
@@ -129,6 +143,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GreetingPreview() {
     App08_AppRATheme {
-        Principal()
+
     }
 }

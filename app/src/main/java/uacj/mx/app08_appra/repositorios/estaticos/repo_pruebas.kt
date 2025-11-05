@@ -15,8 +15,9 @@ object RepositorioPrueba{
             latitude = 31.7156044
             longitude = -106.4246012
         },
+        distancia_maxima = 15.0f,
         cuerpo = informacion(
-            texto = "Este es el texto de la pista 01",
+            texto = "Prueba de texto para comprobar pista 1",
             imagen = null
         )
     ),
@@ -26,6 +27,7 @@ object RepositorioPrueba{
                 latitude = 31.7156044
                 longitude = -106.4246012
             },
+            distancia_maxima = 15.0f,
             cuerpo = informacion(
                 texto = "Este es el texto de la pista 02",
                 imagen = null
@@ -37,6 +39,7 @@ object RepositorioPrueba{
                 latitude = 31.7156044
                 longitude = -106.4246012
             },
+            distancia_maxima = 50.0f,
             cuerpo = informacion(
                 texto = "Este es el texto de la pista 03",
                 imagen = null
@@ -45,6 +48,7 @@ object RepositorioPrueba{
         Pista(
             nombre = "Pista 04",
             ubicacion = Location("Proveedor"),
+            distancia_maxima = 75.0f,
             cuerpo = InformacionInteractiva(
                 texto = "Este es el texto de la pista 04 tipo interactivo",
                 lista_botones = listOf(

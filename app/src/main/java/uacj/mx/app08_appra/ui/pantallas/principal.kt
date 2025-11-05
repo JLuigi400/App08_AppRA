@@ -3,12 +3,10 @@ package uacj.mx.app08_appra.ui.pantallas
 import android.location.Location
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import uacj.mx.app08_appra.modelos.Pista
@@ -18,18 +16,47 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Map
+import uacj.mx.app08_appra.modelos.TiposDePistas
+import uacj.mx.app08_appra.modelos.informacion
+import uacj.mx.app08_appra.ui.organismos.InformacionVista
 
 @Composable
-fun Principal(modifier: Modifier = Modifier) {
+fun Principal(ubicacion: Location?, modificador: Modifier = Modifier) {
     // Envolvemos toda la pantalla en nuestro tema personalizado.
     // Esto aplica automáticamente los colores y fuentes correctos.
     AppTheme {
-        val ubicacionActual = Location("Proveedor").apply {
-            latitude = 31.7156044
-            longitude = -106.4246012
+
+        Column (modificador) {
+            for(pista in RepositorioPrueba.pista){
+
+                if(ubicacion == null){
+                    continue
+                }
+                if(ubicacion.distanceTo(pista.ubicacion) < pista.distancia_maxima){
+
+                    Text("La Pista es: ${pista.nombre}")
+                    Text("La distancia a la pista es: ${ubicacion?.distanceTo(pista.ubicacion)}")
+
+                    when(pista.cuerpo.tipo){
+                        TiposDePistas.texto -> {
+                            InformacionVista(pista.cuerpo as informacion)
+                        }
+                        TiposDePistas.interactivo -> {
+                            InformacionVista(pista.cuerpo as informacion)
+                        }
+                        TiposDePistas.camara -> {
+                            TODO()
+                        }
+                        TiposDePistas.agitar_telefono -> {
+                            TODO()
+                        }
+                    }
+                }
+            }
         }
 
         // Usamos Scaffold para una estructura de pantalla limpia
+
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background, // Usa el color de fondo del tema
             topBar = {
@@ -49,18 +76,15 @@ fun Principal(modifier: Modifier = Modifier) {
         ) { innerPadding ->
             // LazyColumn es más eficiente que un 'for' dentro de un Column para listas.
             LazyColumn(
-                modifier = modifier
+                modifier = modificador
                     .fillMaxSize()
                     .padding(innerPadding)
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp) // Espacio automático entre items
             ) {
-                items(RepositorioPrueba.pista) { pista ->
-                    // Usamos nuestro Composable TrackItem personalizado
-                    TrackItem(pista = pista, ubicacionActual = ubicacionActual)
-                }
             }
         }
+
     }
 }
 
@@ -163,5 +187,8 @@ fun TrackItem(pista: Pista, ubicacionActual: Location) {
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
 fun PrincipalPreview() {
-    Principal()
+    Principal(
+        ubicacion = TODO(),
+        modificador = TODO()
+    )
 }
