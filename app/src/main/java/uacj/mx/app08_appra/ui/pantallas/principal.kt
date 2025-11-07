@@ -1,6 +1,7 @@
 package uacj.mx.app08_appra.ui.pantallas
 
 import android.location.Location
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -16,6 +17,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import uacj.mx.app08_appra.modelos.TiposDePistas
 import uacj.mx.app08_appra.modelos.informacion
 import uacj.mx.app08_appra.ui.organismos.InformacionVista
@@ -26,32 +31,66 @@ fun Principal(ubicacion: Location?, modificador: Modifier = Modifier) {
     // Esto aplica automáticamente los colores y fuentes correctos.
     AppTheme {
 
+        var mostrar_pantalla_generica by remember { mutableStateOf(true) }
+        var mostrar_pista_cercana by remember { mutableStateOf(false) }
+
         Column (modificador) {
             for(pista in RepositorioPrueba.pista){
 
                 if(ubicacion == null){
-                    continue
+                    break
                 }
-                if(ubicacion.distanceTo(pista.ubicacion) < pista.distancia_maxima){
+
+                var distancia_pista = ubicacion.distanceTo(pista.ubicacion)
+
+                Text("La distancia de la pista es: ${distancia_pista}")
+
+                if(distancia_pista < pista.distancia_maxima){
+                    mostrar_pantalla_generica = false
+
+                    var nivel_distancia = (distancia_pista * 100) / (pista.distancia_maxima - pista.distancia_minima)
 
                     Text("La Pista es: ${pista.nombre}")
-                    Text("La distancia a la pista es: ${ubicacion?.distanceTo(pista.ubicacion)}")
+                    Text("El Nivel de la distancia es: ${nivel_distancia}")
 
-                    when(pista.cuerpo.tipo){
-                        TiposDePistas.texto -> {
-                            InformacionVista(pista.cuerpo as informacion)
-                        }
-                        TiposDePistas.interactivo -> {
-                            InformacionVista(pista.cuerpo as informacion)
-                        }
-                        TiposDePistas.camara -> {
-                            TODO()
-                        }
-                        TiposDePistas.agitar_telefono -> {
-                            TODO()
+                    if(nivel_distancia > 75){
+                        Text("Estas lejos")
+                    }else if(nivel_distancia > 50){
+                        Text("Estas Tibio, sigue acercandote owo")
+                    }else if(nivel_distancia > 25){
+                        Text("Estas cerca, continua acercandote nwn")
+                    }else if(nivel_distancia < 20 && !mostrar_pista_cercana){
+                        Row (modifier = Modifier.fillMaxWidth().clickable {
+                            mostrar_pista_cercana = true
+                        }) {
+                            Text("Capturar pista cercana")
                         }
                     }
+                    if(mostrar_pista_cercana){
+                        when(pista.cuerpo.tipo){
+                            TiposDePistas.texto -> {
+                                InformacionVista(pista.cuerpo as informacion)
+                            }
+                            TiposDePistas.interactivo -> {
+                                InformacionVista(pista.cuerpo as informacion)
+                            }
+                            TiposDePistas.camara -> {
+                                TODO()
+                            }
+                            TiposDePistas.agitar_telefono -> {
+                                TODO()
+                            }
+                        }
+                    }
+                }else{
+                    Text("Estas lejos, ni siquiera estas cerca de esta pista: ${pista.nombre}")
                 }
+            }
+        }
+
+        if(mostrar_pantalla_generica){
+            Column (modificador) {
+
             }
         }
 

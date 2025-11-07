@@ -12,10 +12,9 @@ object RepositorioPrueba{
     var pista = listOf(Pista(
         nombre = "Pista 01",
         ubicacion = Location("Proveedor").apply{
-            latitude = 31.7156044
-            longitude = -106.4246012
+            latitude = 31.742609
+            longitude = -106.432703
         },
-        distancia_maxima = 15.0f,
         cuerpo = informacion(
             texto = "Prueba de texto para comprobar pista 1",
             imagen = null
@@ -24,10 +23,9 @@ object RepositorioPrueba{
         Pista(
             nombre = "Pista 02",
             ubicacion = Location("Proveedor").apply{
-                latitude = 31.7156044
-                longitude = -106.4246012
+                latitude = 31.7429201
+                longitude = -106.4336828
             },
-            distancia_maxima = 15.0f,
             cuerpo = informacion(
                 texto = "Este es el texto de la pista 02",
                 imagen = null
@@ -36,10 +34,9 @@ object RepositorioPrueba{
         Pista(
             nombre = "Pista 03",
             ubicacion = Location("Proveedor").apply{
-                latitude = 31.7156044
-                longitude = -106.4246012
+                latitude = 31.743057
+                longitude = -106.4330017
             },
-            distancia_maxima = 50.0f,
             cuerpo = informacion(
                 texto = "Este es el texto de la pista 03",
                 imagen = null
@@ -48,7 +45,6 @@ object RepositorioPrueba{
         Pista(
             nombre = "Pista 04",
             ubicacion = Location("Proveedor"),
-            distancia_maxima = 75.0f,
             cuerpo = InformacionInteractiva(
                 texto = "Este es el texto de la pista 04 tipo interactivo",
                 lista_botones = listOf(
@@ -62,6 +58,17 @@ object RepositorioPrueba{
                     )
                 )
             )
-        )
+        ),
+        Pista(
+            nombre = "Pista 05",
+            ubicacion = Location("Proveedor").apply{
+                latitude = 31.742138
+                longitude = -106.432306
+            },
+            cuerpo = informacion(
+                texto = "Este es el texto de la pista 03",
+                imagen = null
+            ),
+        ),
     )
 }

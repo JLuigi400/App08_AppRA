@@ -70,8 +70,8 @@ class MainActivity : ComponentActivity() {
                         },
                         sin_permisos_obtenidos = {
                             mostrar_resultado_permisos = true
-                            texto_permisos_obtenidos = "No tengo todos los permisos para funcionar qnq"
-                        },
+                            texto_permisos_obtenidos = "Error: La ubicación es nula por algun motivo u.u' "
+                        }
                     ) { }
 
                     
@@ -79,9 +79,6 @@ class MainActivity : ComponentActivity() {
                         modificador = Modifier.padding(innerPadding),
                         ubicacion = ultima_ubicacion_conocida
                     )
-                    
-                    Text(texto_ubicacion, Modifier.padding(innerPadding))
-
                 }
             }
         }
