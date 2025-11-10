@@ -95,7 +95,7 @@ fun Principal(ubicacion: Location?, modificador: Modifier = Modifier) {
         }
 
         // Usamos Scaffold para una estructura de pantalla limpia
-
+/*
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background, // Usa el color de fondo del tema
             topBar = {
@@ -109,6 +109,7 @@ fun Principal(ubicacion: Location?, modificador: Modifier = Modifier) {
                         .wrapContentWidth(Alignment.CenterHorizontally)
                 )
             },
+
             bottomBar = {
                 AppBottomNavigationBar()
             }
@@ -123,7 +124,7 @@ fun Principal(ubicacion: Location?, modificador: Modifier = Modifier) {
             ) {
             }
         }
-
+*/
     }
 }
 

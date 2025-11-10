@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.Manifest
 import android.location.Location
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.util.Pair
 import androidx.activity.ComponentActivity
@@ -24,18 +25,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
+import androidx.hilt.lifecycle.viewmodel.HiltViewModelFactory
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import uacj.mx.app08_appra.modelos.gestor_permisos.SolicitudPermisos
 import uacj.mx.app08_appra.ui.pantallas.Principal
 import uacj.mx.app08_appra.ui.theme.App08_AppRATheme
+import uacj.mx.app08_appra.view_models.GestorUbicacion
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
     private lateinit var conexion_para_obtener_ubicacion: FusedLocationProviderClient
+    private lateinit var puente_recibir_update_ubicacion: LocationCallback
+
+    private var ubicacion_actual = Location("juego_ra")
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        puente_recibir_update_ubicacion = object: LocationCallback(){
+            override fun onLocationResult(ubicaciones: LocationResult){
+                for(ubicacion in ubicaciones.locations){
+                    actualizar_ubicacion(ubicacion)
+                }
+            }
+        }
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -44,21 +64,15 @@ class MainActivity : ComponentActivity() {
                     var texto_ubicacion by remember { mutableStateOf("No tengo permisos para ver tu ubicación qnq") }
                     var mostrar_resultado_permisos by remember { mutableStateOf(false) }
                     var texto_permisos_obtenidos by remember { mutableStateOf("Todos los permisos obtenidos") }
-                    var ultima_ubicacion_conocida by remember { mutableStateOf<Location?>(null) }
+
+                    var gestor_ubicacion: GestorUbicacion = hiltViewModel()
 
                     SolicitudPermisos(
                         con_permisos_obtenidos = {
                             mostrar_resultado_permisos = true
                             obtener_ubicacion_usuario(
-                                ubicacion_actualizada = { ubicacion ->
-                                    Log.v("UBICACIÓN","${ubicacion.first}")
-                                    Log.v("UBICACIÓN","${ubicacion.second}")
-
-                                    val ubicacion_actual = Location("SistemaDeUbicacion")
-                                    ubicacion_actual.latitude = ubicacion.first
-                                    ubicacion_actual.longitude = ubicacion.second
-
-                                    ultima_ubicacion_conocida = ubicacion_actual
+                                ubicacion_actualizada = {
+                                    gestor_ubicacion.actualizar_ubicacion_actual(ubicacion_actual)
                                 },
                                 fallo_obtener_ubicacion = { error_encontrado ->
                                     texto_ubicacion = "Error ${error_encontrado.localizedMessage}"
@@ -77,11 +91,16 @@ class MainActivity : ComponentActivity() {
                     
                     Principal(
                         modificador = Modifier.padding(innerPadding),
-                        ubicacion = ultima_ubicacion_conocida
+                        ubicacion = ubicacion_actual
                     )
                 }
             }
         }
+    }
+
+    fun actualizar_ubicacion(ubicacion: Location){
+        Log.wtf("UBICACIÓN","Ubicacion actualizada ${ubicacion}")
+        ubicacion_actual = ubicacion
     }
 
     @SuppressLint("MissingPermission")
@@ -113,9 +132,23 @@ class MainActivity : ComponentActivity() {
         obtener_error: (Exception) -> Unit,
         prioridad: Boolean = true
     ){
+        conexion_para_obtener_ubicacion = LocationServices.getFusedLocationProviderClient(this)
+
         val precision = if(prioridad) Priority.PRIORITY_HIGH_ACCURACY else Priority.PRIORITY_BALANCED_POWER_ACCURACY
 
         if(tenemos_permisos_ubicacion()){
+            val constructor_puente_para_ubicacion = LocationRequest
+                .Builder(TimeUnit.SECONDS.toMillis(5))
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .build()
+            ///constructor_puente_para_ubicacion.priority = Priority.PRIORITY_HIGH_ACCURACY
+
+            conexion_para_obtener_ubicacion.requestLocationUpdates(
+                constructor_puente_para_ubicacion,
+                puente_recibir_update_ubicacion,
+                Looper.getMainLooper()
+            )
+
             conexion_para_obtener_ubicacion.getCurrentLocation(
 
                 precision, CancellationTokenSource().token
