@@ -85,6 +85,19 @@ dependencies {
     // Implementacion de Iconos
     implementation("androidx.compose.material:material-icons-extended-android:1.7.8")
 
+    // Libreria de AndroidCameraX
+    // CameraX core library using the camera2 implementation
+    val camerax_version = "1.6.0-alpha01"
+    // The following line is optional, as the core library is included indirectly by camera-camera2
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    // If you want to additionally use the CameraX Lifecycle library
+    implementation(libs.androidx.camera.lifecycle)
+    // If you want to additionally use the CameraX VideoCapture library
+    implementation(libs.androidx.camera.video)
+    // If you want to additionally use the CameraX View class
+    implementation(libs.androidx.camera.view)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

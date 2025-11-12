@@ -3,12 +3,10 @@ package uacj.mx.app08_appra.ui.pantallas
 import android.location.Location
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import uacj.mx.app08_appra.modelos.Pista
 import uacj.mx.app08_appra.repositorios.estaticos.RepositorioPrueba
@@ -21,12 +19,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import uacj.mx.app08_appra.modelos.TiposDePistas
 import uacj.mx.app08_appra.modelos.informacion
+import uacj.mx.app08_appra.ui.organismos.DetectorAgitamiento
 import uacj.mx.app08_appra.ui.organismos.InformacionVista
+import uacj.mx.app08_appra.view_models.GestorUbicacion
 
 @Composable
-fun Principal(ubicacion: Location?, modificador: Modifier = Modifier) {
+fun Principal(modificador: Modifier = Modifier, gestorUbicacion: GestorUbicacion = hiltViewModel()) {
     // Envolvemos toda la pantalla en nuestro tema personalizado.
     // Esto aplica automáticamente los colores y fuentes correctos.
     AppTheme {
@@ -34,14 +35,25 @@ fun Principal(ubicacion: Location?, modificador: Modifier = Modifier) {
         var mostrar_pantalla_generica by remember { mutableStateOf(true) }
         var mostrar_pista_cercana by remember { mutableStateOf(false) }
 
+        var mostrar_informacion_relacion_agitar by remember { mutableStateOf(false) }
+
+        var ubicacion = gestorUbicacion.ubicacion_actual
+
         Column (modificador) {
+            DetectorAgitamiento(meta_agitar = 20, meta = {
+                mostrar_informacion_relacion_agitar = true
+            })
+            if(mostrar_informacion_relacion_agitar){
+                Text("Ya me has agitado demasiado, para QnQ")
+            }
+            Text("Ubicacion Actual: ${ubicacion.value}")
             for(pista in RepositorioPrueba.pista){
 
-                if(ubicacion == null){
+                if(ubicacion.value == null){
                     break
                 }
 
-                var distancia_pista = ubicacion.distanceTo(pista.ubicacion)
+                var distancia_pista = ubicacion.value.distanceTo(pista.ubicacion)
 
                 Text("La distancia de la pista es: ${distancia_pista}")
 
@@ -223,12 +235,11 @@ fun TrackItem(pista: Pista, ubicacionActual: Location) {
         }
     }
 }
-
+/*
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
 fun PrincipalPreview() {
     Principal(
-        ubicacion = TODO(),
-        modificador = TODO()
     )
 }
+*/

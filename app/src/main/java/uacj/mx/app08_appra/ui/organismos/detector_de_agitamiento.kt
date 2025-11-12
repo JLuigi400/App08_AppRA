@@ -18,13 +18,13 @@ import androidx.compose.ui.platform.LocalContext
 import java.lang.Math.abs
 
 @Composable
-fun DetectorAgitamiento(modificador: Modifier = Modifier){
+fun DetectorAgitamiento(modificador: Modifier = Modifier, meta_agitar: Int, meta: () -> Unit){
     val contexto = LocalContext.current
     var contador_agitar by remember { mutableStateOf(0) }
-    
+    val sensibilidad = 160
+
     DisposableEffect(Unit) {
         val gestor_sensor = contexto.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-
         val detector_agitamiento = gestor_sensor.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
         val escucha = object : android.hardware.SensorEventListener {
@@ -35,9 +35,13 @@ fun DetectorAgitamiento(modificador: Modifier = Modifier){
                     val z = evento.values[2]
 
                     val sumatoria = abs(x) + abs(y) + abs(z)
-                    if (sumatoria > 80){
+                    if (sumatoria > sensibilidad){
                         Log.v("SENSOR_VELOCIDAD", "La velocidad fue de ${sumatoria}")
                         contador_agitar = contador_agitar + 1
+
+                        if(contador_agitar >= meta_agitar){
+                            meta()
+                        }
                     }
                 }
             }
@@ -53,6 +57,6 @@ fun DetectorAgitamiento(modificador: Modifier = Modifier){
     }
 
     Column {
-        Text("Cantidad de agitadas = ${contador_agitar}")
+        Text("Cantidad de agitadas = ${contador_agitar} y la meta es ${meta_agitar}")
     }
 }

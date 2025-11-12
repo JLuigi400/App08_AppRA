@@ -34,12 +34,15 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import dagger.hilt.android.AndroidEntryPoint
 import uacj.mx.app08_appra.modelos.gestor_permisos.SolicitudPermisos
+import uacj.mx.app08_appra.ui.controladores.NavegacionPrincipal
 import uacj.mx.app08_appra.ui.pantallas.Principal
 import uacj.mx.app08_appra.ui.theme.App08_AppRATheme
 import uacj.mx.app08_appra.view_models.GestorUbicacion
 import java.util.concurrent.TimeUnit
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private lateinit var conexion_para_obtener_ubicacion: FusedLocationProviderClient
     private lateinit var puente_recibir_update_ubicacion: LocationCallback
@@ -48,13 +51,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        puente_recibir_update_ubicacion = object: LocationCallback(){
-            override fun onLocationResult(ubicaciones: LocationResult){
-                for(ubicacion in ubicaciones.locations){
-                    actualizar_ubicacion(ubicacion)
-                }
-            }
-        }
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -70,16 +66,23 @@ class MainActivity : ComponentActivity() {
                     SolicitudPermisos(
                         con_permisos_obtenidos = {
                             mostrar_resultado_permisos = true
+
                             obtener_ubicacion_usuario(
-                                ubicacion_actualizada = {
+                                ubicacion_actualizada_correctamente = { ubicacion_actual ->
+                                    Log.w(
+                                        "Ubicacion Nueva",
+                                        "La ubicacion nueva es: ${ubicacion_actual}"
+                                    )
                                     gestor_ubicacion.actualizar_ubicacion_actual(ubicacion_actual)
                                 },
+                                /*
                                 fallo_obtener_ubicacion = { error_encontrado ->
                                     texto_ubicacion = "Error ${error_encontrado.localizedMessage}"
                                 },
                                 ubicacion_actualizada_no_disponible = {
                                     texto_ubicacion = "Error: La ubicación no está disponible por ningún motivo"
                                 }
+                                */
                             )
                         },
                         sin_permisos_obtenidos = {
@@ -89,10 +92,7 @@ class MainActivity : ComponentActivity() {
                     ) { }
 
                     
-                    Principal(
-                        modificador = Modifier.padding(innerPadding),
-                        ubicacion = ubicacion_actual
-                    )
+                    NavegacionPrincipal(modificador = Modifier.padding(innerPadding))
                 }
             }
         }
@@ -105,24 +105,33 @@ class MainActivity : ComponentActivity() {
 
     @SuppressLint("MissingPermission")
     fun obtener_ubicacion_usuario (
-        ubicacion_actualizada: (Pair<Double, Double>) -> Unit,
-        fallo_obtener_ubicacion: (Exception) -> Unit,
-        ubicacion_actualizada_no_disponible: () -> Unit
+        ubicacion_actualizada_correctamente: (Location) -> Unit,
+        //ubicacion_actualizada: (Pair<Double, Double>) -> Unit,
+        //fallo_obtener_ubicacion: (Exception) -> Unit,
+        //ubicacion_actualizada_no_disponible: () -> Unit
     ){
         conexion_para_obtener_ubicacion = LocationServices.getFusedLocationProviderClient(this)
 
-        if(tenemos_permisos_ubicacion()){
-            conexion_para_obtener_ubicacion.lastLocation
-                .addOnSuccessListener {
-                    ubicacion ->
-                    if(ubicacion != null){
-                        ubicacion_actualizada(Pair(ubicacion.latitude, ubicacion.longitude))
-                    }else{
-                        ubicacion_actualizada_no_disponible()
-                    }
-                }.addOnFailureListener{ error ->
-                    fallo_obtener_ubicacion(error)
+        puente_recibir_update_ubicacion = object: LocationCallback(){
+            override fun onLocationResult(ubicaciones: LocationResult) {
+                for(ubicacion in ubicaciones.locations){
+                    ubicacion_actualizada_correctamente(ubicacion)
                 }
+            }
+        }
+
+        if(tenemos_permisos_ubicacion()){
+
+            val constructor_puentes_ubicacion = LocationRequest
+                .Builder(TimeUnit.SECONDS.toMillis(2))
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .build()
+
+            conexion_para_obtener_ubicacion.requestLocationUpdates(
+                constructor_puentes_ubicacion,
+                puente_recibir_update_ubicacion,
+                Looper.getMainLooper()
+            )
         }
     }
 
@@ -132,32 +141,20 @@ class MainActivity : ComponentActivity() {
         obtener_error: (Exception) -> Unit,
         prioridad: Boolean = true
     ){
-        conexion_para_obtener_ubicacion = LocationServices.getFusedLocationProviderClient(this)
-
-        val precision = if(prioridad) Priority.PRIORITY_HIGH_ACCURACY else Priority.PRIORITY_BALANCED_POWER_ACCURACY
+        val precision = if(prioridad) Priority.PRIORITY_HIGH_ACCURACY else
+            Priority.PRIORITY_BALANCED_POWER_ACCURACY
 
         if(tenemos_permisos_ubicacion()){
-            val constructor_puente_para_ubicacion = LocationRequest
-                .Builder(TimeUnit.SECONDS.toMillis(5))
-                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-                .build()
-            ///constructor_puente_para_ubicacion.priority = Priority.PRIORITY_HIGH_ACCURACY
-
-            conexion_para_obtener_ubicacion.requestLocationUpdates(
-                constructor_puente_para_ubicacion,
-                puente_recibir_update_ubicacion,
-                Looper.getMainLooper()
-            )
-
             conexion_para_obtener_ubicacion.getCurrentLocation(
-
                 precision, CancellationTokenSource().token
-            ).addOnSuccessListener {
-                ubicacion -> if(ubicacion != null){
+            ).addOnSuccessListener { ubicacion ->
+                if(ubicacion != null){
                     obtener_ubicacion(Pair(ubicacion.latitude, ubicacion.longitude))
                 }
             }
-                .addOnFailureListener { error -> obtener_error(error) }
+                .addOnFailureListener{ error ->
+                    obtener_error(error)
+                }
         }
     }
 
